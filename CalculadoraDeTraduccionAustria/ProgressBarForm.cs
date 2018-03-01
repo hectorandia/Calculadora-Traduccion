@@ -21,17 +21,19 @@ namespace CalculadoraDeTraduccionAustria
             InitializeComponent();
             progressBar1.Style = ProgressBarStyle.Marquee;
             CheckForIllegalCrossThreadCalls = false;
+            CancelTask = false;
         }
 
         public void UpdateProgressBar()
         {
-            if(ShowProgressBar)
+            if (ShowProgressBar)
             {
 
             }
             else
             {
-                this.Close();
+                //this.Close();
+                NotifyObs();
             }
         }
 

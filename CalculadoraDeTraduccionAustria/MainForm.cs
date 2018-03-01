@@ -20,11 +20,15 @@ namespace CalculadoraDeTraduccionAustria
         private int totalLineas;
         private Thread workerThread;
         private string selectedPath;
-        private ProgressBarForm progressBarForm = new ProgressBarForm();
+        private ProgressBarForm progressBarForm;
         private ImportSettings settings;
         private List<string> descriptionsList = new List<string>();
         private ComboBox cb;
         private string descriptionFirstElement;
+        private CancellationTokenSource ctFilesFromFolder;
+        private CancellationTokenSource ctFilesFromMenu;
+        private CancellationTokenSource ctProgressBar;
+        private CancellationTokenSource ctRemoveDataSoruce;
 
         public MainForm()
         {
@@ -32,7 +36,6 @@ namespace CalculadoraDeTraduccionAustria
             settings = new ImportSettings();
             descriptionsList = settings.ReadDescriptionsSettins();
             labelTotalText.Text = "0,00";
-       
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -49,10 +52,11 @@ namespace CalculadoraDeTraduccionAustria
         {
             if(progressBarForm.CancelTask)
             {
-                //progressBarForm.Close();
-                //document.CloseWord();
-                this.workerThread.Abort();
-                //this.document.CloseWord();
+                progressBarForm.Close();
+                if (ctFilesFromFolder != null)ctFilesFromFolder.Cancel();
+                if (ctProgressBar != null) ctProgressBar.Cancel();
+                if (ctRemoveDataSoruce != null) ctRemoveDataSoruce.Cancel();
+
             }
             else
             {
@@ -74,27 +78,12 @@ namespace CalculadoraDeTraduccionAustria
             DialogResult result = openFileDialog1.ShowDialog();
             if(result == DialogResult.OK)
             {
-                //document = new WordDocumentFile(openFileDialog1.FileName);
-                //var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
-                //SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
-                StarThreadDataGridViewFileSource(openFileDialog1.FileName);
+                //StarThreadDataGridViewFileSource(openFileDialog1.FileName);
+                ctFilesFromMenu = new CancellationTokenSource();
+                ctProgressBar = new CancellationTokenSource();
+                Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
+                Task.Factory.StartNew(() => StartTaskLoadFileFromWordAddMenu(openFileDialog1.FileName, ctFilesFromMenu.Token));
             }
-        }
-
-        private void StarThreadDataGridViewFileSource(string fileName)
-        {
-            workerThread = new Thread(() => LoadFileFromWordAddMenu(fileName));
-            workerThread.Start();
-            StartProgresBarForm();
-        }
-
-        private void LoadFileFromWordAddMenu(string fileName)
-        {
-            document = new WordDocumentFile(openFileDialog1.FileName);
-            var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
-            SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
-            progressBarForm.ShowProgressBar = false;
-            progressBarForm.UpdateProgressBar();
         }
 
         private void buttonSelectFolder_Click(object sender, EventArgs e)
@@ -102,7 +91,13 @@ namespace CalculadoraDeTraduccionAustria
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 selectedPath = folderBrowserDialog1.SelectedPath;
-                StartThreadGridViewFolderSource();
+                //Parallel.Invoke(() =>StartTaskProgresBarForm(ctProgressBar.Token),() => StartTaskLoadFilesFromFolder(ctFilesFromFolder.Token));
+                //progressBarForm.CancelTask = false;
+                //progressBarForm.ShowProgressBar = true;
+                ctFilesFromFolder = new CancellationTokenSource();
+                ctProgressBar = new CancellationTokenSource();
+                Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
+                Task.Factory.StartNew(() => StartTaskLoadFilesFromFolder(ctFilesFromFolder.Token));
             }
         }
 
@@ -115,7 +110,6 @@ namespace CalculadoraDeTraduccionAustria
         private void buttonAddPowerPoint_Click(object sender, EventArgs e)
         {
             addJob = new AddJobForm();
-            addJob.RegisterObs(this);
             addJob.ShowDialog(this);
         }
 
@@ -128,6 +122,9 @@ namespace CalculadoraDeTraduccionAustria
         private void buttonRemoveWork_Click(object sender, EventArgs e)
         {
             RemoveDataSoruce();
+            //ctRemoveDataSoruce = new CancellationTokenSource();
+            //Task.Factory.StartNew(() => RemoveDataSoruce(ctRemoveDataSoruce.Token));
+
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -145,6 +142,7 @@ namespace CalculadoraDeTraduccionAustria
         #endregion Buttons
 
 
+        #region Helpers
         public void SetFileInfo(string fileName, string description, int characters, string date)
         {
             var lineas = TotalLineas(Convert.ToInt32(textBoxSimbolosLineas.Text), characters);
@@ -178,7 +176,6 @@ namespace CalculadoraDeTraduccionAustria
 
         internal delegate void SetDataSourceDelegate(TranslationInfo info);
 
-
         public void SetDataSource(TranslationInfo info)
         {
             if (this.InvokeRequired)
@@ -187,31 +184,34 @@ namespace CalculadoraDeTraduccionAustria
             }
             else
             {
-                ((DataGridViewComboBoxColumn)dataGridView1.Columns["Beschreibung"]).DataSource = cb.Items;
-                //dataGridView1.Rows.Add(info.Select, info.FileName, info.Description, info.Date, info.Lines, info.Precio.ToString("N2"));
-                //BindingList<string> bindingList = new BindingList<string>();               
+                ((DataGridViewComboBoxColumn)dataGridView1.Columns["Beschreibung"]).DataSource = cb.Items;            
                 dataGridView1.Rows.Add(info.Select, info.FileName, descriptionFirstElement, info.Date, info.Lines, info.Precio.ToString("N2"));
                 dataGridView1.Refresh();
                 UpdatePrice();
             }
         }
 
-        internal delegate void RemoveDataSoruceDelegate();
-
+        /// <summary>
+        /// Elimina todas las entradas del GridView que
+        /// han sido seleccionadas
+        /// </summary>
         public void RemoveDataSoruce()
         {
-            foreach (DataGridViewRow row in dataGridView1.Rows)
+            for(int i = dataGridView1.Rows.Count -1; i >=0; i--)
             {
-                if (Convert.ToBoolean(row.Cells["Select"].Value) == true)
+                if(Convert.ToBoolean(dataGridView1.Rows[i].Cells["Select"].Value) == true)
                 {
-                    dataGridView1.Rows.RemoveAt(row.Index);
+                    dataGridView1.Rows.RemoveAt(i);
                 }
-                else { }
             }
             UpdatePrice();
             dataGridView1.Refresh();
         }
 
+        /// <summary>
+        /// Actualiza el valor equivalente a la suma 
+        /// de todas las Traducciones.
+        /// </summary>
         public void UpdatePrice()
         {
             Decimal total = 0;
@@ -221,34 +221,37 @@ namespace CalculadoraDeTraduccionAustria
             }
             labelTotalText.Text = total.ToString();
         }
+        #endregion Helpers
 
-
-        private void StartProgresBarForm()
+        #region tasks
+        /// <summary>
+        /// Inicia la barra de Progreso 
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        private async Task StartTaskProgresBarForm(CancellationToken ct)
         {
+            progressBarForm = new ProgressBarForm();
             progressBarForm.RegisterObs(this);
-            progressBarForm.ShowDialog(this);
-
-            progressBarForm.ShowProgressBar = true;
-            progressBarForm.CancelTask = false;
+            progressBarForm.CancelTask = false;         
+            progressBarForm.ShowDialog(this);     
         }
 
-
-        private void StartThreadGridViewFolderSource()
+        private async Task StartTaskLoadFileFromWordAddMenu(string fileName, CancellationToken ct)
         {
-            workerThread = new Thread(new ThreadStart(LoadFilesFromFolder));
-            workerThread.Start();
-            StartProgresBarForm();
-            //progressBarForm.ShowDialog(this);
+            document = new WordDocumentFile(openFileDialog1.FileName);
+            var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
+            SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
+            progressBarForm.CancelTask = true;
+            progressBarForm.Close();
         }
-
-        internal delegate void LoadFilesFromFolderDelegate();
 
         /// <summary>
         /// Devuelve todos los archivos Word que se encuentran
         /// en la carpeta seleccionada
         /// </summary>
         /// <param name="path"></param>
-        public void LoadFilesFromFolder()
+        public async Task StartTaskLoadFilesFromFolder(CancellationToken ct)
         {
             var ext = new List<string> { ".docx", ".doc" };
             var myFiles = Directory.GetFiles(selectedPath, "*.*", SearchOption.AllDirectories).Where(s => ext.Contains(Path.GetExtension(s)));
@@ -259,13 +262,19 @@ namespace CalculadoraDeTraduccionAustria
                 {
                     document = new WordDocumentFile(file);
                     var date = File.GetLastWriteTime(file).ToString("dd/MM/yyyy");
-                //SetFileInfo(document.DocumentName, "Ansprüche EN-DE", document.DocumentCharactersCount, date);
-                SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
-            }
-            progressBarForm.ShowProgressBar = false;
-            progressBarForm.UpdateProgressBar();
+                    //SetFileInfo(document.DocumentName, "Ansprüche EN-DE", document.DocumentCharactersCount, date);
+                    SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
+                    if(ct.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                }
+            progressBarForm.CancelTask = true;
+            progressBarForm.Close();
         }
+        #endregion tasks
 
+        #region exportWork
         private void ToCsv(DataGridView dGV, string filename)
         {
             string stOutput = "";
@@ -384,5 +393,6 @@ namespace CalculadoraDeTraduccionAustria
 
             }
         }
+        #endregion exportWork
     }
 }

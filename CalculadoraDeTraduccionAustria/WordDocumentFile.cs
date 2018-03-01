@@ -10,6 +10,7 @@ namespace CalculadoraDeTraduccionAustria
     public class WordDocumentFile
     {
         private string documentName;
+        private string documentPathFile;
         private int documentCharactersCount;
         private int totalLineas;
         private Application app;
@@ -17,9 +18,15 @@ namespace CalculadoraDeTraduccionAustria
 
         public WordDocumentFile(string documentPath)
         {
+            documentPathFile = documentPath;
+            InitializeDocument();
+        }
+
+        public void InitializeDocument()
+        {
             //Application ap = new Application();
             app = new Application();
-            document = app.Documents.Open(documentPath, Type.Missing, true);
+            document = app.Documents.Open(documentPathFile, Type.Missing, true);
             Range rng = document.Content;
             rng.Select();
 
@@ -27,12 +34,7 @@ namespace CalculadoraDeTraduccionAustria
             DocumentName = document.Name;
             document.Close();
             //CloseWord();
-            ap.Quit(false);
-        }
-
-        public void CloseWord()
-        {
-            
+            app.Quit(false);
         }
 
         public string DocumentName
