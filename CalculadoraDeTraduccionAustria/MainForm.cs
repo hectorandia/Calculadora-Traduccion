@@ -49,7 +49,10 @@ namespace CalculadoraDeTraduccionAustria
         {
             if(progressBarForm.CancelTask)
             {
+                //progressBarForm.Close();
+                //document.CloseWord();
                 this.workerThread.Abort();
+                //this.document.CloseWord();
             }
             else
             {

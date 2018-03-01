@@ -12,18 +12,27 @@ namespace CalculadoraDeTraduccionAustria
         private string documentName;
         private int documentCharactersCount;
         private int totalLineas;
+        private Application app;
+        private Document document;
 
         public WordDocumentFile(string documentPath)
         {
-            Application ap = new Application();
-            Document document = ap.Documents.Open(documentPath, Type.Missing, true);
+            //Application ap = new Application();
+            app = new Application();
+            document = app.Documents.Open(documentPath, Type.Missing, true);
             Range rng = document.Content;
             rng.Select();
 
             DocumentCharactersCount = rng.ComputeStatistics(WdStatistic.wdStatisticCharactersWithSpaces);
             DocumentName = document.Name;
             document.Close();
+            //CloseWord();
             ap.Quit(false);
+        }
+
+        public void CloseWord()
+        {
+            
         }
 
         public string DocumentName
