@@ -54,6 +54,9 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.selectFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectFileToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -77,7 +80,7 @@
             this.Betrag});
             this.dataGridView1.Location = new System.Drawing.Point(12, 130);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(1043, 587);
+            this.dataGridView1.Size = new System.Drawing.Size(1043, 562);
             this.dataGridView1.TabIndex = 0;
             // 
             // Select
@@ -125,14 +128,14 @@
             this.panel1.Controls.Add(this.labelTotalText);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 723);
+            this.panel1.Location = new System.Drawing.Point(0, 698);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1067, 125);
             this.panel1.TabIndex = 1;
             // 
             // buttonSave
             // 
-            this.buttonSave.Location = new System.Drawing.Point(25, 22);
+            this.buttonSave.Location = new System.Drawing.Point(25, 35);
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(92, 23);
             this.buttonSave.TabIndex = 2;
@@ -145,7 +148,7 @@
             this.labelTotalText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelTotalText.AutoSize = true;
             this.labelTotalText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTotalText.Location = new System.Drawing.Point(953, 30);
+            this.labelTotalText.Location = new System.Drawing.Point(953, 43);
             this.labelTotalText.Name = "labelTotalText";
             this.labelTotalText.Size = new System.Drawing.Size(36, 16);
             this.labelTotalText.TabIndex = 1;
@@ -156,7 +159,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(843, 30);
+            this.label1.Location = new System.Drawing.Point(843, 43);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(110, 16);
             this.label1.TabIndex = 0;
@@ -266,19 +269,40 @@
             // 
             // fileToolStripMenuItem
             // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectFolderToolStripMenuItem,
+            this.selectFileToolStripMenuItem,
+            this.selectFileToolStripMenuItem1});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
-            // openFileDialog1
+            // selectFolderToolStripMenuItem
             // 
-            this.openFileDialog1.FileName = "openFileDialog1";
+            this.selectFolderToolStripMenuItem.Name = "selectFolderToolStripMenuItem";
+            this.selectFolderToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.selectFolderToolStripMenuItem.Text = "Select Folder";
+            this.selectFolderToolStripMenuItem.Click += new System.EventHandler(this.selectFolderToolStripMenuItem_Click);
+            // 
+            // selectFileToolStripMenuItem
+            // 
+            this.selectFileToolStripMenuItem.Name = "selectFileToolStripMenuItem";
+            this.selectFileToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.selectFileToolStripMenuItem.Text = "Select Word File";
+            this.selectFileToolStripMenuItem.Click += new System.EventHandler(this.selectFileToolStripMenuItem_Click);
+            // 
+            // selectFileToolStripMenuItem1
+            // 
+            this.selectFileToolStripMenuItem1.Name = "selectFileToolStripMenuItem1";
+            this.selectFileToolStripMenuItem1.Size = new System.Drawing.Size(158, 22);
+            this.selectFileToolStripMenuItem1.Text = "Select File";
+            this.selectFileToolStripMenuItem1.Click += new System.EventHandler(this.selectFileToolStripMenuItem1_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1067, 848);
+            this.ClientSize = new System.Drawing.Size(1067, 823);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.dataGridView1);
@@ -328,5 +352,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Ausführungsdatum;
         private System.Windows.Forms.DataGridViewTextBoxColumn Normzeilen;
         private System.Windows.Forms.DataGridViewTextBoxColumn Betrag;
+        private System.Windows.Forms.ToolStripMenuItem selectFolderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem selectFileToolStripMenuItem1;
     }
 }

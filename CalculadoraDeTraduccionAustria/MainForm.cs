@@ -28,7 +28,6 @@ namespace CalculadoraDeTraduccionAustria
         private CancellationTokenSource ctFilesFromFolder;
         private CancellationTokenSource ctFilesFromMenu;
         private CancellationTokenSource ctProgressBar;
-        private CancellationTokenSource ctRemoveDataSoruce;
 
         public MainForm()
         {
@@ -55,12 +54,9 @@ namespace CalculadoraDeTraduccionAustria
                 progressBarForm.Close();
                 if (ctFilesFromFolder != null)ctFilesFromFolder.Cancel();
                 if (ctProgressBar != null) ctProgressBar.Cancel();
-                if (ctRemoveDataSoruce != null) ctRemoveDataSoruce.Cancel();
-
             }
             else
             {
-                //SetFileInfo(addJob.FileName, addJob.Description, addJob.Lines, addJob.Date);
                 SetFileInfo(addJob.FileName, descriptionFirstElement, addJob.Lines, addJob.Date);             
             }           
         }
@@ -74,32 +70,15 @@ namespace CalculadoraDeTraduccionAustria
         /// <param name="e"></param>
         private void buttonAddWork_Click(object sender, EventArgs e)
         {
-            openFileDialog1.Filter = "Word Document (*.docx, *.doc)| *.docx; *.doc";
-            DialogResult result = openFileDialog1.ShowDialog();
-            if(result == DialogResult.OK)
-            {
-                //StarThreadDataGridViewFileSource(openFileDialog1.FileName);
-                ctFilesFromMenu = new CancellationTokenSource();
-                ctProgressBar = new CancellationTokenSource();
-                Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
-                Task.Factory.StartNew(() => StartTaskLoadFileFromWordAddMenu(openFileDialog1.FileName, ctFilesFromMenu.Token));
-            }
+            AddWorkFunction();
         }
 
+       
         private void buttonSelectFolder_Click(object sender, EventArgs e)
         {
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-            {
-                selectedPath = folderBrowserDialog1.SelectedPath;
-                //Parallel.Invoke(() =>StartTaskProgresBarForm(ctProgressBar.Token),() => StartTaskLoadFilesFromFolder(ctFilesFromFolder.Token));
-                //progressBarForm.CancelTask = false;
-                //progressBarForm.ShowProgressBar = true;
-                ctFilesFromFolder = new CancellationTokenSource();
-                ctProgressBar = new CancellationTokenSource();
-                Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
-                Task.Factory.StartNew(() => StartTaskLoadFilesFromFolder(ctFilesFromFolder.Token));
-            }
+            SelectFolderFunction();
         }
+
 
         /// <summary>
         /// Inicia un cuadro de dialogo para agregar un archivo de cualquier tipo
@@ -109,8 +88,7 @@ namespace CalculadoraDeTraduccionAustria
         /// <param name="e"></param>
         private void buttonAddPowerPoint_Click(object sender, EventArgs e)
         {
-            addJob = new AddJobForm();
-            addJob.ShowDialog(this);
+            AddPowerPointFunction();
         }
 
         /// <summary>
@@ -122,9 +100,6 @@ namespace CalculadoraDeTraduccionAustria
         private void buttonRemoveWork_Click(object sender, EventArgs e)
         {
             RemoveDataSoruce();
-            //ctRemoveDataSoruce = new CancellationTokenSource();
-            //Task.Factory.StartNew(() => RemoveDataSoruce(ctRemoveDataSoruce.Token));
-
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -134,8 +109,6 @@ namespace CalculadoraDeTraduccionAustria
 
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                //ToCsV(dataGridView1, @"c:\export.xls");
-                //ToCsv(dataGridView1, saveFileDialog1.FileName); // Here dataGridview1 is your grid view name
                 Export_Data_To_Word(dataGridView1, saveFileDialog1.FileName);
             }
         }
@@ -143,6 +116,39 @@ namespace CalculadoraDeTraduccionAustria
 
 
         #region Helpers
+
+        private void AddWorkFunction()
+        {
+            openFileDialog1.Filter = "Word Document (*.docx, *.doc)| *.docx; *.doc";
+            DialogResult result = openFileDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                ctFilesFromMenu = new CancellationTokenSource();
+                ctProgressBar = new CancellationTokenSource();
+                Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
+                Task.Factory.StartNew(() => StartTaskLoadFileFromWordAddMenu(openFileDialog1.FileName, ctFilesFromMenu.Token));
+            }
+        }
+
+
+        private void SelectFolderFunction()
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                selectedPath = folderBrowserDialog1.SelectedPath;
+                ctFilesFromFolder = new CancellationTokenSource();
+                ctProgressBar = new CancellationTokenSource();
+                Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
+                Task.Factory.StartNew(() => StartTaskLoadFilesFromFolder(ctFilesFromFolder.Token));
+            }
+        }
+
+        private void AddPowerPointFunction()
+        {
+            addJob = new AddJobForm();
+            addJob.ShowDialog(this);
+        }
+
         public void SetFileInfo(string fileName, string description, int characters, string date)
         {
             var lineas = TotalLineas(Convert.ToInt32(textBoxSimbolosLineas.Text), characters);
@@ -255,14 +261,11 @@ namespace CalculadoraDeTraduccionAustria
         {
             var ext = new List<string> { ".docx", ".doc" };
             var myFiles = Directory.GetFiles(selectedPath, "*.*", SearchOption.AllDirectories).Where(s => ext.Contains(Path.GetExtension(s)));
-            //var myFiles = Directory.GetFiles(selectedPath, "*.*", SearchOption.AllDirectories).Where(file => new string[] { ".docx", ".doc" }.Contains(Path.GetExtension(file)));
                 List<string> Files = myFiles.OfType<string>().ToList();
-                //var myFiles = Directory.GetFiles(path);
                 foreach(string file in Files)
                 {
                     document = new WordDocumentFile(file);
                     var date = File.GetLastWriteTime(file).ToString("dd/MM/yyyy");
-                    //SetFileInfo(document.DocumentName, "Ansprüche EN-DE", document.DocumentCharactersCount, date);
                     SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
                     if(ct.IsCancellationRequested)
                     {
@@ -394,5 +397,22 @@ namespace CalculadoraDeTraduccionAustria
             }
         }
         #endregion exportWork
+
+        #region Top Menu
+        private void selectFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SelectFolderFunction();
+        }
+        #endregion Top Menu
+
+        private void selectFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddWorkFunction();
+        }
+
+        private void selectFileToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            AddPowerPointFunction();
+        }
     }
 }

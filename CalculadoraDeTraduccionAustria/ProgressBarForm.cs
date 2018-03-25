@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace CalculadoraDeTraduccionAustria
 {
     public partial class ProgressBarForm : Form, ISubject

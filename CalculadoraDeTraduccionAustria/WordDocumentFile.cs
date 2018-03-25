@@ -24,7 +24,6 @@ namespace CalculadoraDeTraduccionAustria
 
         public void InitializeDocument()
         {
-            //Application ap = new Application();
             app = new Application();
             document = app.Documents.Open(documentPathFile, Type.Missing, true);
             Range rng = document.Content;
@@ -33,7 +32,6 @@ namespace CalculadoraDeTraduccionAustria
             DocumentCharactersCount = rng.ComputeStatistics(WdStatistic.wdStatisticCharactersWithSpaces);
             DocumentName = document.Name;
             document.Close();
-            //CloseWord();
             app.Quit(false);
         }
 
