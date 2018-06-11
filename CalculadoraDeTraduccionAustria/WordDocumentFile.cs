@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Office.Interop.Word;
 
+
 namespace CalculadoraDeTraduccionAustria
 {
     public class WordDocumentFile
@@ -16,6 +17,7 @@ namespace CalculadoraDeTraduccionAustria
         private Application app;
         private Document document;
 
+
         public WordDocumentFile(string documentPath)
         {
             documentPathFile = documentPath;
@@ -24,15 +26,23 @@ namespace CalculadoraDeTraduccionAustria
 
         public void InitializeDocument()
         {
-            app = new Application();
-            document = app.Documents.Open(documentPathFile, Type.Missing, true);
-            Range rng = document.Content;
-            rng.Select();
+            try
+            {
+                app = new Application();
+                document = app.Documents.Open(documentPathFile, Type.Missing, true);
+                Range rng = document.Content;
+                rng.Select();
 
-            DocumentCharactersCount = rng.ComputeStatistics(WdStatistic.wdStatisticCharactersWithSpaces);
-            DocumentName = document.Name;
-            document.Close();
-            app.Quit(false);
+                DocumentCharactersCount = rng.ComputeStatistics(WdStatistic.wdStatisticCharactersWithSpaces);
+                DocumentName = document.Name;
+                document.Close();
+                app.Quit(false);
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            
         }
 
         public string DocumentName

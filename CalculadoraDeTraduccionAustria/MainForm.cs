@@ -49,16 +49,24 @@ namespace CalculadoraDeTraduccionAustria
 
         public void UpdateElements()
         {
-            if(progressBarForm.CancelTask)
+            if(progressBarForm != null)
             {
-                progressBarForm.Close();
-                if (ctFilesFromFolder != null)ctFilesFromFolder.Cancel();
-                if (ctProgressBar != null) ctProgressBar.Cancel();
+                if (progressBarForm.CancelTask)
+                {
+                    progressBarForm.Close();
+                    if (ctFilesFromFolder != null) ctFilesFromFolder.Cancel();
+                    if (ctProgressBar != null) ctProgressBar.Cancel();
+                }
+                else
+                {
+                    SetFileInfo(addJob.FileName, descriptionFirstElement, addJob.Lines, addJob.Date);
+                }
             }
             else
             {
-                SetFileInfo(addJob.FileName, descriptionFirstElement, addJob.Lines, addJob.Date);             
-            }           
+                SetFileInfo(addJob.FileName, descriptionFirstElement, addJob.Lines, addJob.Date);
+            }
+                      
         }
 
         #region Buttons
@@ -125,8 +133,10 @@ namespace CalculadoraDeTraduccionAustria
             {
                 ctFilesFromMenu = new CancellationTokenSource();
                 ctProgressBar = new CancellationTokenSource();
+
                 Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
                 Task.Factory.StartNew(() => StartTaskLoadFileFromWordAddMenu(openFileDialog1.FileName, ctFilesFromMenu.Token));
+
             }
         }
 
@@ -146,7 +156,9 @@ namespace CalculadoraDeTraduccionAustria
         private void AddPowerPointFunction()
         {
             addJob = new AddJobForm();
+            addJob.RegisterObs(this);
             addJob.ShowDialog(this);
+            
         }
 
         public void SetFileInfo(string fileName, string description, int characters, string date)
@@ -245,11 +257,21 @@ namespace CalculadoraDeTraduccionAustria
 
         private async Task StartTaskLoadFileFromWordAddMenu(string fileName, CancellationToken ct)
         {
-            document = new WordDocumentFile(openFileDialog1.FileName);
-            var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
-            SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
-            progressBarForm.CancelTask = true;
-            progressBarForm.Close();
+            try
+            {
+                document = new WordDocumentFile(openFileDialog1.FileName);
+                var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
+                SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
+                progressBarForm.CancelTask = true;
+                progressBarForm.Close();
+            }
+            catch(Exception ex)
+            {
+                progressBarForm.CancelTask = true;
+                progressBarForm.Close();
+                MessageBox.Show(ex.Message);
+            }
+            
         }
 
         /// <summary>
@@ -259,21 +281,31 @@ namespace CalculadoraDeTraduccionAustria
         /// <param name="path"></param>
         public async Task StartTaskLoadFilesFromFolder(CancellationToken ct)
         {
-            var ext = new List<string> { ".docx", ".doc" };
-            var myFiles = Directory.GetFiles(selectedPath, "*.*", SearchOption.AllDirectories).Where(s => ext.Contains(Path.GetExtension(s)));
+            try
+            {
+                var ext = new List<string> { ".docx", ".doc" };
+                var myFiles = Directory.GetFiles(selectedPath, "*.*", SearchOption.AllDirectories).Where(s => ext.Contains(Path.GetExtension(s)));
                 List<string> Files = myFiles.OfType<string>().ToList();
-                foreach(string file in Files)
+                foreach (string file in Files)
                 {
                     document = new WordDocumentFile(file);
                     var date = File.GetLastWriteTime(file).ToString("dd/MM/yyyy");
                     SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
-                    if(ct.IsCancellationRequested)
+                    if (ct.IsCancellationRequested)
                     {
                         break;
                     }
                 }
-            progressBarForm.CancelTask = true;
-            progressBarForm.Close();
+                progressBarForm.CancelTask = true;
+                progressBarForm.Close();
+            }
+            catch(Exception ex)
+            {
+                progressBarForm.CancelTask = true;
+                progressBarForm.Close();
+                MessageBox.Show(ex.Message);
+            }
+            
         }
         #endregion tasks
 
