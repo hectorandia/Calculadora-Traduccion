@@ -51,12 +51,12 @@
             this.labelValorLinea = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.selectFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectFileToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -297,6 +297,10 @@
             this.selectFileToolStripMenuItem1.Size = new System.Drawing.Size(158, 22);
             this.selectFileToolStripMenuItem1.Text = "Select File";
             this.selectFileToolStripMenuItem1.Click += new System.EventHandler(this.selectFileToolStripMenuItem1_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.Multiselect = true;
             // 
             // MainForm
             // 

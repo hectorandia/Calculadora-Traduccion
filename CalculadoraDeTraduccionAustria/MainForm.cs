@@ -134,8 +134,9 @@ namespace CalculadoraDeTraduccionAustria
                 ctFilesFromMenu = new CancellationTokenSource();
                 ctProgressBar = new CancellationTokenSource();
 
+
                 Task.Factory.StartNew(() => StartTaskProgresBarForm(ctProgressBar.Token));
-                Task.Factory.StartNew(() => StartTaskLoadFileFromWordAddMenu(openFileDialog1.FileName, ctFilesFromMenu.Token));
+                Task.Factory.StartNew(() => StartTaskLoadFileFromWordAddMenu(openFileDialog1.FileNames, ctFilesFromMenu.Token));
 
             }
         }
@@ -255,13 +256,19 @@ namespace CalculadoraDeTraduccionAustria
             progressBarForm.ShowDialog(this);     
         }
 
-        private async Task StartTaskLoadFileFromWordAddMenu(string fileName, CancellationToken ct)
+        private async Task StartTaskLoadFileFromWordAddMenu(string[] fileNames, CancellationToken ct)
         {
             try
-            {
-                document = new WordDocumentFile(openFileDialog1.FileName);
-                var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
-                SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
+            {             
+                foreach(string fileName in fileNames)
+                {
+                    //document = new WordDocumentFile(openFileDialog1.FileName);
+                    document = new WordDocumentFile(fileName);
+                    //var date = File.GetLastWriteTime(openFileDialog1.FileName).ToString("dd/MM/yyyy");
+                    var date = File.GetLastWriteTime(fileName).ToString("dd/MM/yyyy");
+                    SetFileInfo(document.DocumentName, descriptionFirstElement, document.DocumentCharactersCount, date);
+                }
+                
                 progressBarForm.CancelTask = true;
                 progressBarForm.Close();
             }

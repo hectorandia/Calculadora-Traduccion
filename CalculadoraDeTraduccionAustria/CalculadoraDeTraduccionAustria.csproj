@@ -116,6 +116,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="img\factura.png" />
+    <Content Include="img\favicon.ico" />
+    <Content Include="img\Sc.ico" />
+    <Content Include="img\ScIcon.ico" />
+    <Content Include="ScIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <COMReference Include="Microsoft.Office.Interop.Word">
       <Guid>{00020905-0000-0000-C000-000000000046}</Guid>
       <VersionMajor>8</VersionMajor>
@@ -125,13 +132,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="img\factura.png" />
-    <Content Include="img\favicon.ico" />
-    <Content Include="img\Sc.ico" />
-    <Content Include="img\ScIcon.ico" />
-    <Content Include="ScIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
